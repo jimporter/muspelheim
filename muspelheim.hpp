@@ -39,20 +39,22 @@ public:
 
   flame_function(const function_type &f,
                  const affine_transform<T> &transform,
-                 const Pixel &color)
-    : f_({{f, 1}}), transform_(transform), color_(color) {}
+                 const Pixel &color,
+                 const affine_transform<T> &post = {1, 0, 0, 0, 1, 0})
+    : f_({{f, 1}}), transform_(transform), color_(color), post_(post) {}
 
   flame_function(const std::initializer_list<value_type> &f,
                  const affine_transform<T> &transform,
-                 const Pixel &color)
-    : f_(f), transform_(transform), color_(color) {}
+                 const Pixel &color,
+                 const affine_transform<T> &post = {1, 0, 0, 0, 1, 0})
+    : f_(f), transform_(transform), color_(color), post_(post) {}
 
   inline point_type operator ()(const point_type &p) const {
     point_type value = {0, 0};
     const auto &transformed = transform_(p);
     for(const auto &i : f_)
       value += i.second * i.first(transformed, transform_);
-    return value;
+    return post_(value);
   }
 
   inline pixel_type color() const {
@@ -62,10 +64,25 @@ private:
   std::vector<value_type> f_;
   affine_transform<T> transform_;
   Pixel color_;
+  affine_transform<T> post_;
 };
 
 template<typename Pixel, typename T = double>
 using flame_function_set = std::vector<flame_function<Pixel, T>>;
+
+template<typename ChannelValue, typename Layout>
+boost::gil::pixel<ChannelValue, Layout>
+blend(const boost::gil::pixel<ChannelValue, Layout> &a,
+      const boost::gil::pixel<ChannelValue, Layout> &b, double ratio) {
+  boost::gil::pixel<ChannelValue, Layout> p;
+  constexpr size_t channels = boost::mpl::size<
+    typename Layout::color_space_t
+  >::value;
+
+  for(int i = 0; i < channels; i++)
+    p[i] = a[i] * ratio + b[i] * (1 - ratio);
+  return p;
+}
 
 template<typename View, typename Pixel, typename T>
 void chaos_game(const View &dst, const flame_function_set<Pixel, T> &funcs,
@@ -99,17 +116,14 @@ void chaos_game(const View &dst, const flame_function_set<Pixel, T> &funcs,
         static_cast<ptrdiff_t>((point.x + 1) / 2 * alpha.width()),
         static_cast<ptrdiff_t>((point.y + 1) / 2 * alpha.height())
       );
+      if(!alpha(pt)[0])
+        color(pt) = f.color();
+      else
+        color(pt) = blend(color(pt), f.color(), 0.9);
+
       alpha(pt)[0]++;
       if(alpha(pt)[0] > max_alpha)
         max_alpha = alpha(pt)[0];
-
-      auto &a = color(pt);
-      auto b = f.color();
-      color(pt) = Pixel(
-        a[0] + (b[0] - a[0]) / 2,
-        a[1] + (b[1] - a[1]) / 2,
-        a[2] + (b[2] - a[2]) / 2
-      );
     }
   }
 
