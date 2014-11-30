@@ -11,6 +11,20 @@
 #include <boost/gil/image.hpp>
 #include <boost/gil/typedefs.hpp>
 
+// Make sure that multiplying points by floating-point values works correctly.
+namespace boost { namespace gil {
+
+  template <typename T, typename U>
+  point2<T> operator *(const point2<T> &p, U t) {
+    return point2<T>(p.x*t, p.y*t);
+  }
+  template <typename T, typename U>
+  point2<U> operator *(T t, const point2<U> &p) {
+    return point2<U>(t*p.x, t*p.y);
+  }
+
+} }
+
 namespace muspelheim {
 
 template<typename Pixel, typename T = double>
@@ -18,20 +32,35 @@ class flame_function {
 public:
   using point_type = boost::gil::point2<T>;
   using pixel_type = Pixel;
-  using function_type = std::function<point_type(const point_type &)>;
+  using function_type = std::function<
+    point_type(const point_type &, const affine_transform<T> &)
+  >;
+  using value_type = std::pair<function_type, T>;
 
-  flame_function(const function_type &f, const Pixel &color)
-    : f_(f), color_(color) {}
+  flame_function(const function_type &f,
+                 const affine_transform<T> &transform,
+                 const Pixel &color)
+    : f_({{f, 1}}), transform_(transform), color_(color) {}
+
+  flame_function(const std::initializer_list<value_type> &f,
+                 const affine_transform<T> &transform,
+                 const Pixel &color)
+    : f_(f), transform_(transform), color_(color) {}
 
   inline point_type operator ()(const point_type &p) const {
-    return f_(p);
+    point_type value = {0, 0};
+    const auto &transformed = transform_(p);
+    for(const auto &i : f_)
+      value += i.second * i.first(transformed, transform_);
+    return value;
   }
 
   inline pixel_type color() const {
     return color_;
   }
 private:
-  function_type f_;
+  std::vector<value_type> f_;
+  affine_transform<T> transform_;
   Pixel color_;
 };
 
