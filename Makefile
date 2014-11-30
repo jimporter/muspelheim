@@ -28,7 +28,7 @@ all: muspelheim
 	@rm -f $(TEMP)
 
 muspelheim: $(SOURCES:.cpp=.o)
-	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -lpng -o $@
+	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -lpng -lboost_program_options -o $@
 
 .PHONY: install
 install: all
