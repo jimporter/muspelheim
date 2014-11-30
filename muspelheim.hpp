@@ -97,11 +97,11 @@ void chaos_game(const View &dst, const flame_function_set<Pixel, T> &funcs,
   std::uniform_real_distribution<T> random_biunit(-1, 1);
 
   gray32_image_t alpha_img(dst.dimensions(), gray32_pixel_t(0), 0);
-  gray32_image_t::view_t alpha = view(alpha_img);
+  auto alpha = view(alpha_img);
   bits32 max_alpha = 0;
 
   color_image_t color_img(dst.dimensions(), Pixel(0), 0);
-  typename color_image_t::view_t color = view(color_img);
+  auto color = view(color_img);
 
   biunit_pt point(random_biunit(engine), random_biunit(engine));
 
