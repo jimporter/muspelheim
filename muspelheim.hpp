@@ -92,7 +92,7 @@ void chaos_game(const View &dst, const flame_function_set<Pixel, T> &funcs,
   using image_pt = point2<ptrdiff_t>;
   using color_image_t = image<Pixel, false>;
 
-  std::mt19937 engine;
+  std::default_random_engine engine(std::random_device{}());
   std::uniform_int_distribution<size_t> random_func(0, funcs.size() - 1);
   std::uniform_real_distribution<T> random_biunit(-1, 1);
 
