@@ -41,7 +41,7 @@ public:
                  const affine_transform<T> &transform,
                  const Pixel &color,
                  const affine_transform<T> &post = {1, 0, 0, 0, 1, 0})
-    : f_({{f, 1}}), transform_(transform), color_(color), post_(post) {}
+    : flame_function({{f, 1}}, transform, color, post) {}
 
   flame_function(const std::initializer_list<value_type> &f,
                  const affine_transform<T> &transform,
