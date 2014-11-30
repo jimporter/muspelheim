@@ -9,11 +9,12 @@ endif
 
 SOURCES := $(wildcard *.cpp)
 
+.PHONY: all
+all: muspelheim
+
 # Include all the existing dependency files for automatic #include dependency
 # handling.
 -include $(SOURCES:.cpp=.d)
-
-all: muspelheim
 
 # Build .o files and the corresponding .d (dependency) files. For more info, see
 # <http://scottmcpeak.com/autodepend/autodepend.html>.
