@@ -1,5 +1,6 @@
 #include "variations.hpp"
 #include "muspelheim.hpp"
+#include "colors.hpp"
 
 #include <iostream>
 
@@ -11,16 +12,13 @@ int main(int argc, const char *argv[]) {
   using rgb8 = rgb8_pixel_t;
   namespace opts = boost::program_options;
 
+  color_theme_iterator colors({20, 80, 200}, 10);
   flame_function_set<rgb8> funcs = {
-    { spiral<>(),    {0.5,  0, 0,     0, 0.5,   0   }, rgb8(255, 83,  13) },
-    { { {linear<>(), 0.5}, {spiral<>(), 0.5} },
-                     {0,    1, 0,     1, 0,     0   }, rgb8(234, 44,  12) },
-    { linear<>(),    {-1,   0, -0.25, 0, -0.75, 0.25}, rgb8(255,  0,   0),
-      { 0.25, 0.75, 0, 0.75, 0.25, 0 } },
-    { spherical<>(), {-0.5, 0, -0.5,  0, 0.5,   0.5 }, rgb8(232, 12, 122),
-      { 0.75, -0.25, 0.5, -0.25, 0.75, 0.5 } },
-    { spherical<>(), {0.5,  0, 0.5,   0, 0.5,   0.5 }, rgb8(255, 13, 255),
-      { 0.75, 0.25, 0, 0.25, 0.75, 0 } }
+    { swirl<>(),     { 0.5,   0,     0,     0,     0.5,  -0.5  }, *colors++ },
+    { spherical<>(), { 0.48, -0.5,   0.1,  -0.52,  0.48,  0    }, *colors++ },
+    { linear<>(),    {-0.5,   0,     0.25, -0.5,   0.25,  0    }, *colors++ },
+    { spherical<>(), {-0.25,  0.25,  0.25,  0.25, -0.75,  0.25 }, *colors++ },
+    { swirl<>(),     { 0,     0.5,   0.5,   0.5,   0,     0    }, *colors++ },
   };
 
   bool show_help = false;

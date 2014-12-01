@@ -53,6 +53,20 @@ struct spherical {
 };
 
 template<typename T = double>
+struct swirl {
+  using point_type = boost::gil::point2<T>;
+
+  point_type
+  operator ()(const point_type &p, const affine_transform<T> &) const {
+    auto r2 = p.x*p.x + p.y*p.y;
+    return point_type(
+      p.x * std::sin(r2) - p.y * cos(r2),
+      p.x * std::sin(r2) + p.y * cos(r2)
+    );
+  }
+};
+
+template<typename T = double>
 struct handkerchief {
   using point_type = boost::gil::point2<T>;
 
