@@ -111,20 +111,22 @@ void chaos_game(const View &dst, const flame_function_set<Pixel, T> &funcs,
   for(size_t i = 0; i < num_iterations; i++) {
     auto &f = funcs[random_func(engine)];
     point = f(point);
-    if(point.x >= -1 && point.x < 1 && point.y >= -1 && point.y < 1) {
-      image_pt pt(
-        static_cast<ptrdiff_t>((point.x + 1) / 2 * alpha.width()),
-        static_cast<ptrdiff_t>((point.y + 1) / 2 * alpha.height())
-      );
-      if(!alpha(pt)[0])
-        color(pt) = f.color();
-      else
-        color(pt) = blend(color(pt), f.color(), 0.9);
+    image_pt pt(
+      static_cast<ptrdiff_t>((point.x + 1) / 2 * alpha.width()),
+      static_cast<ptrdiff_t>((point.y + 1) / 2 * alpha.height())
+    );
+    if(pt.x < 0 || pt.x >= alpha.width() ||
+       pt.y < 0 || pt.y >= alpha.height())
+      continue;
 
-      alpha(pt)[0]++;
-      if(alpha(pt)[0] > max_alpha)
-        max_alpha = alpha(pt)[0];
-    }
+    if(!alpha(pt)[0])
+      color(pt) = f.color();
+    else
+      color(pt) = blend(color(pt), f.color(), 0.9);
+
+    alpha(pt)[0]++;
+    if(alpha(pt)[0] > max_alpha)
+      max_alpha = alpha(pt)[0];
   }
 
   auto logmax = std::log(static_cast<T>(max_alpha));
