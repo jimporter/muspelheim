@@ -7,16 +7,64 @@
 
 namespace muspelheim {
 
-template<typename T = double>
-class affine_transform {
-public:
-  using point_type = boost::gil::point2<T>;
+struct vec2d {
+  vec2d() = default;
+  vec2d(double x, double y) : x(x), y(y) {}
 
-  affine_transform(T a, T b, T c, T d, T e, T f)
-    : a(a), b(b), c(c), d(d), e(e), f(f) {}
+  vec2d & operator +=(const vec2d &rhs) {
+    x += rhs.x;
+    y += rhs.y;
+    return *this;
+  }
 
-  point_type operator ()(const point_type &p) const {
-    return point_type(a*p.x + b*p.y + c, d*p.x + e*p.y + f);
+  vec2d & operator -=(const vec2d &rhs) {
+    x -= rhs.x;
+    y -= rhs.y;
+    return *this;
+  }
+
+  vec2d & operator *=(double rhs) {
+    x *= rhs;
+    y *= rhs;
+    return *this;
+  }
+
+  vec2d & operator /=(double rhs) {
+    x /= rhs;
+    y /= rhs;
+    return *this;
+  }
+
+  friend vec2d operator +(const vec2d &x, const vec2d &y) {
+    return vec2d(x) += y;
+  }
+
+  friend vec2d operator -(const vec2d &x, const vec2d &y) {
+    return vec2d(x) -= y;
+  }
+
+  friend vec2d operator *(const vec2d &x, double &y) {
+    return vec2d(x) *= y;
+  }
+
+  friend vec2d operator *(double x, const vec2d &y) {
+    return vec2d(y) *= x;
+  }
+
+  friend vec2d operator /(const vec2d &x, double y) {
+    return vec2d(x) /= y;
+  }
+
+  double x, y;
+};
+
+struct affine_transform {
+  affine_transform() = default;
+  affine_transform(double a, double b, double c, double d, double e, double f) :
+    a(a), b(b), c(c), d(d), e(e), f(f) {}
+
+  vec2d operator ()(const vec2d &p) const {
+    return { a*p.x + b*p.y + c, d*p.x + e*p.y + f };
   }
 
   affine_transform & operator +=(const affine_transform &rhs) {
@@ -31,56 +79,73 @@ public:
     return *this;
   }
 
+  affine_transform & operator *=(double rhs) {
+    a *= rhs; b *= rhs; c *= rhs;
+    d *= rhs; e *= rhs; f *= rhs;
+    return *this;
+  }
+
+  affine_transform & operator /=(double rhs) {
+    a /= rhs; b /= rhs; c /= rhs;
+    d /= rhs; e /= rhs; f /= rhs;
+    return *this;
+  }
+
+  friend affine_transform
+  operator +(const affine_transform &x, const affine_transform &y) {
+    return affine_transform(x) += y;
+  }
+
+  friend affine_transform
+  operator -(const affine_transform &x, const affine_transform &y) {
+    return affine_transform(x) -= y;
+  }
+
+  friend affine_transform
+  operator *(const affine_transform &x, double &y) {
+    return affine_transform(x) *= y;
+  }
+
+  friend affine_transform
+  operator *(double x, const affine_transform &y) {
+    return affine_transform(y) *= x;
+  }
+
+  friend affine_transform
+  operator /(const affine_transform &x, double &y) {
+    return affine_transform(x) /= y;
+  }
+
+  friend affine_transform
+  operator *(const affine_transform &x, const affine_transform &y) {
+    return {
+      x.a*y.a + x.b*y.d, x.a*y.b + x.b*y.e, x.a*y.c + x.b*y.f + x.c,
+        x.d*y.a + x.e*y.d, x.d*y.b + x.e*y.e, x.d*y.c + x.e*y.f + x.f
+        };
+  }
+
   affine_transform & operator *=(const affine_transform &rhs) {
     *this = *this * rhs;
     return *this;
   }
 
-  affine_transform
-  operator +(const affine_transform &rhs) {
-    return affine_transform(*this) += rhs;
-  }
-
-  affine_transform
-  operator -(const affine_transform &rhs) {
-    return affine_transform(*this) -= rhs;
-  }
-
-  affine_transform
-  operator *(const affine_transform &rhs) {
-    return affine_transform(
-      a*rhs.a + b*rhs.d, a*rhs.b + b*rhs.e, a*rhs.c + b*rhs.f + c,
-      d*rhs.a + e*rhs.d, d*rhs.b + e*rhs.e, d*rhs.c + e*rhs.f + f
-    );
-  }
-
-  friend
-  std::ostream & operator <<(std::ostream &os, const affine_transform &t) {
-    return os << "{ " << t.a << ", " << t.b << ", " << t.c
-              << ", " << t.d << ", " << t.e << ", " << t.f << " }" << std::endl;
-  }
-private:
-  T a, b, c, d, e, f;
+  double a, b, c, d, e, f;
 };
 
-template<typename T>
-affine_transform<T> identity() {
+inline affine_transform identity() {
   return { 1, 0, 0,  0, 1, 0 };
 }
 
-template<typename T>
-affine_transform<T> scale(T factor) {
+inline affine_transform scale(double factor) {
   return { factor, 0, 0,  0, factor, 0 };
 }
 
-template<typename T>
-affine_transform<T> rotate(T theta) {
+inline affine_transform rotate(double theta) {
   return { std::cos(theta), -std::sin(theta), 0,
            std::sin(theta),  std::cos(theta), 0 };
 }
 
-template<typename T>
-affine_transform<T> translate(T x, T y) {
+inline affine_transform translate(double x, double y) {
   return { 1, 0, x,  0, 1, y };
 }
 

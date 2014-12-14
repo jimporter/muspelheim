@@ -14,19 +14,19 @@ int main(int argc, const char *argv[]) {
 
   color_theme_iterator colors({40, 140, 140}, 6);
   flame_function_set<rgb8> funcs = {
-    { handkerchief<>(), translate(0.5, -0.75)*identity<double>(), *colors++ },
-    { handkerchief<>(), translate(0.75, -0.5)*rotate(M_PI), *colors++ },
-    { linear<>(), translate(-0.1, 0.1)*scale(0.3), *colors++ },
-    { linear<>(), translate(0.1, -0.1)*scale(0.35)*rotate(M_PI/2), *colors++ },
-    { spiral<>(), translate(-0.5, 0.1)*scale(0.5), *colors++ },
-    { spiral<>(), translate(0.5, -0.1)*scale(0.5), *colors++ },
-    { spiral<>(), translate(-0.5, 0.1)*scale(0.5)*rotate(M_PI/2), *colors++ },
-    { spiral<>(), translate(0.5, -0.1)*scale(0.5)*rotate(M_PI/2), *colors++ },
-    { spiral<>(), translate(0.1, -0.5)*scale(0.5), *colors++ },
-    { spiral<>(), translate(-0.1, 0.5)*scale(0.5), *colors++ },
-    { spiral<>(), translate(0.1, -0.5)*scale(0.5)*rotate(M_PI/2), *colors++ },
-    { spiral<>(), translate(-0.1, 0.5)*scale(0.5)*rotate(M_PI/2), *colors++ },
-    { swirl<>(), translate(-0.5, -0.5)*scale(-0.75), *colors++ },
+    { handkerchief, translate(0.5, -0.75)*identity(), *colors++ },
+    { handkerchief, translate(0.75, -0.5)*rotate(M_PI), *colors++ },
+    { linear, translate(-0.1, 0.1)*scale(0.3), *colors++ },
+    { linear, translate(0.1, -0.1)*scale(0.35)*rotate(M_PI/2), *colors++ },
+    { spiral, translate(-0.5, 0.1)*scale(0.5), *colors++ },
+    { spiral, translate(0.5, -0.1)*scale(0.5), *colors++ },
+    { spiral, translate(-0.5, 0.1)*scale(0.5)*rotate(M_PI/2), *colors++ },
+    { spiral, translate(0.5, -0.1)*scale(0.5)*rotate(M_PI/2), *colors++ },
+    { spiral, translate(0.1, -0.5)*scale(0.5), *colors++ },
+    { spiral, translate(-0.1, 0.5)*scale(0.5), *colors++ },
+    { spiral, translate(0.1, -0.5)*scale(0.5)*rotate(M_PI/2), *colors++ },
+    { spiral, translate(-0.1, 0.5)*scale(0.5)*rotate(M_PI/2), *colors++ },
+    { swirl, translate(-0.5, -0.5)*scale(-0.75), *colors++ },
   };
 
   bool show_help = false;
@@ -59,7 +59,11 @@ int main(int argc, const char *argv[]) {
   }
 
   rgb8_image_t image(size, size, rgb8(0), 0);
-  render(view(image), chaos_game(funcs, {size, size}, steps), gamma);
+  render(
+    view(image),
+    log_alpha(chaos_game(funcs, {size, size}, steps)),
+    gamma
+  );
   png_write_view("output.png", const_view(image));
 
   return 0;
