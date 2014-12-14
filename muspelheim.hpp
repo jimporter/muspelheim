@@ -131,12 +131,10 @@ void chaos_game(const View &dst, const flame_function_set<Pixel, T> &funcs,
   }
 
   auto logmax = std::log(static_cast<T>(max_alpha));
-  for(size_t x = 0; x < dst.width(); x++) {
-    for(size_t y = 0; y < dst.height(); y++) {
-      auto a = std::log(static_cast<T>(alpha(x, y)[0])) / logmax;
-      auto &c = color(x, y);
-      dst(x, y) = typename View::value_type(c[0] * a, c[1] * a, c[2] * a);
-    }
+  for(size_t i = 0; i != dst.size(); i++) {
+    auto a = std::log(static_cast<T>(alpha[i][0])) / logmax;
+    auto &c = color[i];
+    dst[i] = typename View::value_type(c[0] * a, c[1] * a, c[2] * a);
   }
 }
 
