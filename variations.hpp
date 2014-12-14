@@ -3,24 +3,9 @@
 
 #include <cmath>
 
-#include <boost/gil/utilities.hpp>
+#include "transform.hpp"
 
 namespace muspelheim {
-
-template<typename T = double>
-class affine_transform {
-public:
-  using point_type = boost::gil::point2<T>;
-
-  affine_transform(T a, T b, T c, T d, T e, T f)
-    : a(a), b(b), c(c), d(d), e(e), f(f) {}
-
-  point_type operator ()(const point_type &p) const {
-    return point_type(a*p.x + b*p.y + c, d*p.x + e*p.y + f);
-  }
-private:
-  T a, b, c, d, e, f;
-};
 
 template<typename T = double>
 struct linear {

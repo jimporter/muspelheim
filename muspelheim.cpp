@@ -12,13 +12,21 @@ int main(int argc, const char *argv[]) {
   using rgb8 = rgb8_pixel_t;
   namespace opts = boost::program_options;
 
-  color_theme_iterator colors({20, 80, 200}, 10);
+  color_theme_iterator colors({40, 140, 140}, 6);
   flame_function_set<rgb8> funcs = {
-    { swirl<>(),     { 0.5,   0,     0,     0,     0.5,  -0.5  }, *colors++ },
-    { spherical<>(), { 0.48, -0.5,   0.1,  -0.52,  0.48,  0    }, *colors++ },
-    { linear<>(),    {-0.5,   0,     0.25, -0.5,   0.25,  0    }, *colors++ },
-    { spherical<>(), {-0.25,  0.25,  0.25,  0.25, -0.75,  0.25 }, *colors++ },
-    { swirl<>(),     { 0,     0.5,   0.5,   0.5,   0,     0    }, *colors++ },
+    { handkerchief<>(), translate(0.5, -0.75)*identity<double>(), *colors++ },
+    { handkerchief<>(), translate(0.75, -0.5)*rotate(M_PI), *colors++ },
+    { linear<>(), translate(-0.1, 0.1)*scale(0.3), *colors++ },
+    { linear<>(), translate(0.1, -0.1)*scale(0.35)*rotate(M_PI/2), *colors++ },
+    { spiral<>(), translate(-0.5, 0.1)*scale(0.5), *colors++ },
+    { spiral<>(), translate(0.5, -0.1)*scale(0.5), *colors++ },
+    { spiral<>(), translate(-0.5, 0.1)*scale(0.5)*rotate(M_PI/2), *colors++ },
+    { spiral<>(), translate(0.5, -0.1)*scale(0.5)*rotate(M_PI/2), *colors++ },
+    { spiral<>(), translate(0.1, -0.5)*scale(0.5), *colors++ },
+    { spiral<>(), translate(-0.1, 0.5)*scale(0.5), *colors++ },
+    { spiral<>(), translate(0.1, -0.5)*scale(0.5)*rotate(M_PI/2), *colors++ },
+    { spiral<>(), translate(-0.1, 0.5)*scale(0.5)*rotate(M_PI/2), *colors++ },
+    { swirl<>(), translate(-0.5, -0.5)*scale(-0.75), *colors++ },
   };
 
   bool show_help = false;

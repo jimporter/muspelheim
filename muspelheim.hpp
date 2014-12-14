@@ -1,8 +1,6 @@
 #ifndef INC_MUSPELHEIM_HPP
 #define INC_MUSPELHEIM_HPP
 
-#include <iostream>
-
 #include <functional>
 #include <random>
 #include <vector>
