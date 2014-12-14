@@ -96,7 +96,6 @@ void chaos_game(const View &dst, const flame_function_set<Pixel, T> &funcs,
 
   gray32_image_t alpha_img(dst.dimensions(), gray32_pixel_t(0), 0);
   auto alpha = view(alpha_img);
-  bits32 max_alpha = 0;
 
   color_image_t color_img(dst.dimensions(), Pixel(0), 0);
   auto color = view(color_img);
@@ -123,8 +122,12 @@ void chaos_game(const View &dst, const flame_function_set<Pixel, T> &funcs,
       color(pt) = blend(color(pt), f.color(), 0.9);
 
     alpha(pt)[0]++;
-    if(alpha(pt)[0] > max_alpha)
-      max_alpha = alpha(pt)[0];
+  }
+
+  bits32 max_alpha = 0;
+  for(const auto &a : alpha) {
+    if(a[0] > max_alpha)
+      max_alpha = a[0];
   }
 
   auto logmax = std::log(static_cast<T>(max_alpha));
