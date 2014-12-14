@@ -82,23 +82,35 @@ blend(const boost::gil::pixel<ChannelValue, Layout> &a,
   return p;
 }
 
-template<typename View, typename Pixel, typename T>
-void chaos_game(const View &dst, const flame_function_set<Pixel, T> &funcs,
-                size_t num_iterations = 10000000) {
+template<typename Pixel>
+struct image_data {
+  using color_pixel = Pixel;
+  using alpha_pixel = boost::gil::gray32_pixel_t;
+
+  image_data(const boost::gil::point2<ptrdiff_t> &dimensions) :
+    color(dimensions, color_pixel(0), 0),
+    alpha(dimensions, alpha_pixel(0), 0) {}
+
+  boost::gil::image<Pixel, false> color;
+  boost::gil::gray32_image_t alpha;
+};
+
+template<typename Pixel, typename T>
+image_data<Pixel>
+chaos_game(const flame_function_set<Pixel, T> &funcs,
+           const boost::gil::point2<ptrdiff_t> &dimensions,
+           size_t num_iterations = 10000000) {
   using namespace boost::gil;
   using biunit_pt = point2<T>;
   using image_pt = point2<ptrdiff_t>;
-  using color_image_t = image<Pixel, false>;
 
   std::default_random_engine engine(std::random_device{}());
   std::uniform_int_distribution<size_t> random_func(0, funcs.size() - 1);
   std::uniform_real_distribution<T> random_biunit(-1, 1);
 
-  gray32_image_t alpha_img(dst.dimensions(), gray32_pixel_t(0), 0);
-  auto alpha = view(alpha_img);
-
-  color_image_t color_img(dst.dimensions(), Pixel(0), 0);
-  auto color = view(color_img);
+  image_data<Pixel> result(dimensions);
+  auto color = view(result.color);
+  auto alpha = view(result.alpha);
 
   biunit_pt point(random_biunit(engine), random_biunit(engine));
 
@@ -124,15 +136,27 @@ void chaos_game(const View &dst, const flame_function_set<Pixel, T> &funcs,
     alpha(pt)[0]++;
   }
 
+  return result;
+}
+
+template<typename View, typename Pixel, typename T = double>
+void render(View &dst, const image_data<Pixel> &src, T gamma = 1.0) {
+  using namespace boost::gil;
+
+  auto color = const_view(src.color);
+  auto alpha = const_view(src.alpha);
+
   bits32 max_alpha = 0;
   for(const auto &a : alpha) {
     if(a[0] > max_alpha)
       max_alpha = a[0];
   }
 
+  T inv_gamma = 1.0/gamma;
   auto logmax = std::log(static_cast<T>(max_alpha));
   for(size_t i = 0; i != dst.size(); i++) {
     auto a = std::log(static_cast<T>(alpha[i][0])) / logmax;
+    a = std::pow(a, inv_gamma);
     auto &c = color[i];
     dst[i] = typename View::value_type(c[0] * a, c[1] * a, c[2] * a);
   }

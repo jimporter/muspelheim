@@ -31,13 +31,15 @@ int main(int argc, const char *argv[]) {
 
   bool show_help = false;
   size_t steps = 1000000;
-  size_t size = 666;
+  ptrdiff_t size = 666;
+  double gamma = 1.0;
 
   opts::options_description desc;
   desc.add_options()
     ("help,h", opts::value(&show_help)->zero_tokens(), "show help")
     ("steps,n", opts::value(&steps), "number of iterations")
     ("size,s", opts::value(&size), "image size")
+    ("gamma,g", opts::value(&gamma), "gamma adjustment")
   ;
 
   try {
@@ -57,7 +59,7 @@ int main(int argc, const char *argv[]) {
   }
 
   rgb8_image_t image(size, size, rgb8(0), 0);
-  chaos_game(view(image), funcs, steps);
+  render(view(image), chaos_game(funcs, {size, size}, steps), gamma);
   png_write_view("output.png", const_view(image));
 
   return 0;
