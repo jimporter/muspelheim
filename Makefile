@@ -7,7 +7,7 @@ ifndef TMPDIR
   TMPDIR := /tmp
 endif
 
-SOURCES := $(wildcard *.cpp)
+SOURCES := $(wildcard src/*.cpp)
 
 .PHONY: all
 all: muspelheim
