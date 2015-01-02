@@ -27,8 +27,9 @@ all: muspelheim
 	  sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
 	@rm -f $(TEMP)
 
+muspelheim: LDFLAGS += -lpng -lpthread -lboost_program_options
 muspelheim: $(SOURCES:.cpp=.o)
-	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -lpng -lboost_program_options -o $@
+	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 
 .PHONY: install
 install: all
