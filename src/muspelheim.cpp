@@ -62,14 +62,14 @@ int main(int argc, const char *argv[]) {
   }
 
   std::vector< std::future<raw_image_data<rgb8>> > jobs;
-  for (size_t i = 0; i < num_jobs; i++) {
+  for(size_t i = 0; i < num_jobs; i++) {
     jobs.push_back(std::async(
       std::launch::async, chaos_game<rgb8>,
       funcs, point2<ptrdiff_t>{size, size}, steps
     ));
   }
   std::vector<raw_image_data<rgb8>> data;
-  for (auto &job : jobs)
+  for(auto &job : jobs)
     data.push_back(job.get());
   auto combined = combine(data);
 
