@@ -5,6 +5,8 @@
 #include <future>
 #include <iostream>
 
+#include <boost/gil/extension/io/png_dynamic_io.hpp>
+#include <boost/gil/typedefs.hpp>
 #include <boost/program_options.hpp>
 
 int main(int argc, const char *argv[]) {
@@ -35,6 +37,7 @@ int main(int argc, const char *argv[]) {
   ptrdiff_t size = 666;
   size_t num_jobs = 1;
   double gamma = 1.0;
+  bool hdr = false;
 
   opts::options_description desc;
   desc.add_options()
@@ -43,6 +46,7 @@ int main(int argc, const char *argv[]) {
     ("size,s", opts::value(&size), "image size")
     ("jobs,j", opts::value(&num_jobs), "number of parallel jobs")
     ("gamma,g", opts::value(&gamma), "gamma adjustment")
+    ("hdr,H", opts::value(&hdr)->zero_tokens(), "enable HDR")
   ;
 
   try {
@@ -75,6 +79,15 @@ int main(int argc, const char *argv[]) {
 
   rgb8_image_t image(size, size, rgb8(0), 0);
   render(view(image), log_alpha(combined), gamma);
+
+  if(hdr) {
+    rgb8_image_t gray(size, size, rgb8(0), 0);
+    render_monochrome(
+      view(gray), linear_alpha(combined), rgb8(255, 255, 255), gamma
+    );
+    lighten(view(image), const_view(gray));
+  }
+
   png_write_view("output.png", const_view(image));
 
   return 0;
