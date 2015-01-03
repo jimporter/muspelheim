@@ -1,11 +1,11 @@
-#ifndef INC_VARIATIONS_HPP
-#define INC_VARIATIONS_HPP
+#ifndef INC_MUSPELHEIM_VARIATIONS_HPP
+#define INC_MUSPELHEIM_VARIATIONS_HPP
 
 #include <cmath>
 
-#include "transform.hpp"
+#include "vec2d.hpp"
 
-namespace muspelheim {
+namespace math {
 
 inline vec2d linear(const vec2d &p, const affine_transform &) {
   return p;
@@ -45,6 +45,6 @@ inline vec2d spiral(const vec2d &p, const affine_transform &) {
   };
 }
 
-} // namespace muspelheim
+} // namespace math
 
 #endif

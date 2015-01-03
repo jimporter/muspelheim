@@ -1,9 +1,9 @@
-#ifndef INC_IMAGE_HPP
-#define INC_IMAGE_HPP
+#ifndef INC_MUSPELHEIM_IMAGE_HPP
+#define INC_MUSPELHEIM_IMAGE_HPP
 
 #include <boost/gil/image.hpp>
 
-namespace muspelheim {
+namespace images {
 
 template<typename Pixel>
 Pixel blend(const Pixel &a, const Pixel &b, double ratio) {
@@ -178,6 +178,6 @@ void lighten(View &a, const ConstView &b) {
   }
 }
 
-} // namespace muspelheim
+} // namespace images
 
 #endif

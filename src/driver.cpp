@@ -1,6 +1,6 @@
-#include "variations.hpp"
-#include "muspelheim.hpp"
 #include "colors.hpp"
+#include "ifs.hpp"
+#include "variations.hpp"
 
 #include <future>
 #include <iostream>
@@ -10,13 +10,13 @@
 #include <boost/program_options.hpp>
 
 int main(int argc, const char *argv[]) {
-  using namespace muspelheim;
+  using namespace math;
   using namespace boost::gil;
   using rgb8 = rgb8_pixel_t;
   namespace opts = boost::program_options;
 
-  color_theme_iterator colors({40, 140, 140}, 6);
-  flame_function_set<rgb8> funcs = {
+  colors::color_theme_iterator colors({40, 140, 140}, 6);
+  ifs::iterated_function_system<rgb8> funcs = {
     { handkerchief, translate(0.5, -0.75)*identity(), *colors++ },
     { handkerchief, translate(0.75, -0.5)*rotate(M_PI), *colors++ },
     { linear, translate(-0.1, 0.1)*scale(0.3), *colors++ },
@@ -65,27 +65,27 @@ int main(int argc, const char *argv[]) {
     return 0;
   }
 
-  std::vector< std::future<raw_image_data<rgb8>> > jobs;
+  std::vector< std::future<images::raw_image_data<rgb8>> > jobs;
   for(size_t i = 0; i < num_jobs; i++) {
     jobs.push_back(std::async(
-      std::launch::async, chaos_game<rgb8>,
+      std::launch::async, ifs::chaos_game<rgb8>,
       funcs, point2<ptrdiff_t>{size, size}, steps
     ));
   }
-  std::vector<raw_image_data<rgb8>> data;
+  std::vector<images::raw_image_data<rgb8>> data;
   for(auto &job : jobs)
     data.push_back(job.get());
-  auto combined = combine(data);
+  auto combined = images::combine(data);
 
   rgb8_image_t image(size, size, rgb8(0), 0);
-  render(view(image), log_alpha(combined), gamma);
+  images::render(view(image), images::log_alpha(combined), gamma);
 
   if(hdr) {
     rgb8_image_t gray(size, size, rgb8(0), 0);
-    render_monochrome(
-      view(gray), linear_alpha(combined), rgb8(255, 255, 255), gamma
+    images::render_monochrome(
+      view(gray), images::linear_alpha(combined), rgb8(255, 255, 255), gamma
     );
-    lighten(view(image), const_view(gray));
+    images::lighten(view(image), const_view(gray));
   }
 
   png_write_view("output.png", const_view(image));

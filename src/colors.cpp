@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 
+namespace colors {
+
 hsv tohsv(const rgb &value) {
   auto minmax = std::minmax<uint32_t>({value.r, value.g, value.b});
   int delta = minmax.second - minmax.first;
@@ -56,3 +58,5 @@ void color_theme_iterator::evaluate() {
     value.h += 360;
   curr_ = torgb(value);
 }
+
+} // namespace colors

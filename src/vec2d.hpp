@@ -1,11 +1,9 @@
-#ifndef INC_TRANSFORM_HPP
-#define INC_TRANSFORM_HPP
+#ifndef INC_MUSPELHEIM_VEC2D_HPP
+#define INC_MUSPELHEIM_VEC2D_HPP
 
 #include <cmath>
 
-#include <boost/gil/utilities.hpp>
-
-namespace muspelheim {
+namespace math {
 
 struct vec2d {
   vec2d() = default;
@@ -149,6 +147,6 @@ inline affine_transform translate(double x, double y) {
   return { 1, 0, x,  0, 1, y };
 }
 
-} // namespace muspelheim
+} // namespace math
 
 #endif

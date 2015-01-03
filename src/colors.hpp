@@ -1,5 +1,10 @@
+#ifndef INC_MUSPELHEIM_COLORS_HPP
+#define INC_MUSPELHEIM_COLORS_HPP
+
 #include <boost/gil/typedefs.hpp>
 #include <boost/iterator/iterator_facade.hpp>
+
+namespace colors {
 
 struct rgb {
   rgb() = default;
@@ -56,3 +61,7 @@ private:
   int index_;
   rgb curr_;
 };
+
+} // namespace colors
+
+#endif

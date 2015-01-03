@@ -1,60 +1,60 @@
-#ifndef INC_MUSPELHEIM_HPP
-#define INC_MUSPELHEIM_HPP
+#ifndef INC_MUSPELHEIM_IFS_HPP
+#define INC_MUSPELHEIM_IFS_HPP
 
 #include <functional>
 #include <random>
 #include <vector>
 
-#include "image.hpp"
-#include "transform.hpp"
+#include "images.hpp"
+#include "vec2d.hpp"
 
-namespace muspelheim {
+namespace ifs {
 
 template<typename Pixel>
-class flame_function {
+class iterated_function {
 public:
   using pixel_type = Pixel;
   using function_type = std::function<
-    vec2d(const vec2d &, const affine_transform &)
+    math::vec2d(const math::vec2d &, const math::affine_transform &)
   >;
   using value_type = std::pair<function_type, double>;
 
-  flame_function(const function_type &f,
-                 const affine_transform &transform,
-                 const Pixel &color,
-                 const affine_transform &post = identity())
-    : flame_function({{f, 1}}, transform, color, post) {}
+  iterated_function(
+    const function_type &f, const math::affine_transform &transform,
+    const pixel_type &color,
+    const math::affine_transform &post = math::identity()
+  ) : iterated_function({{f, 1}}, transform, color, post) {}
 
-  flame_function(const std::initializer_list<value_type> &f,
-                 const affine_transform &transform,
-                 const Pixel &color,
-                 const affine_transform &post = identity())
-    : f_(f), transform_(transform), color_(color), post_(post) {}
+  iterated_function(
+    const std::initializer_list<value_type> &f,
+    const math::affine_transform &transform, const pixel_type &color,
+    const math::affine_transform &post = math::identity()
+  ) : f_(f), transform_(transform), color_(color), post_(post) {}
 
-  inline vec2d operator ()(const vec2d &p) const {
-    vec2d value = {0, 0};
+  inline math::vec2d operator ()(const math::vec2d &p) const {
+    math::vec2d value = {0, 0};
     const auto &transformed = transform_(p);
     for(const auto &i : f_)
       value += i.second * i.first(transformed, transform_);
     return post_(value);
   }
 
-  inline pixel_type color() const {
+  inline const pixel_type & color() const {
     return color_;
   }
 private:
   std::vector<value_type> f_;
-  affine_transform transform_;
+  math::affine_transform transform_;
   pixel_type color_;
-  affine_transform post_;
+  math::affine_transform post_;
 };
 
 template<typename Pixel>
-using flame_function_set = std::vector<flame_function<Pixel>>;
+using iterated_function_system = std::vector<iterated_function<Pixel>>;
 
 template<typename Pixel>
-raw_image_data<Pixel>
-chaos_game(const flame_function_set<Pixel> &funcs,
+images::raw_image_data<Pixel>
+chaos_game(const iterated_function_system<Pixel> &funcs,
            const boost::gil::point2<ptrdiff_t> &dimensions,
            size_t num_iterations = 10000000) {
   using namespace boost::gil;
@@ -64,11 +64,11 @@ chaos_game(const flame_function_set<Pixel> &funcs,
   std::uniform_int_distribution<size_t> random_func(0, funcs.size() - 1);
   std::uniform_real_distribution<double> random_biunit(-1, 1);
 
-  raw_image_data<Pixel> result(dimensions);
+  images::raw_image_data<Pixel> result(dimensions);
   auto color = view(result.color);
   auto alpha = view(result.alpha);
 
-  vec2d point(random_biunit(engine), random_biunit(engine));
+  math::vec2d point(random_biunit(engine), random_biunit(engine));
 
   for(size_t i = 0; i < 20; i++)
     point = funcs[random_func(engine)](point);
@@ -87,7 +87,7 @@ chaos_game(const flame_function_set<Pixel> &funcs,
     if(!alpha(pt))
       color(pt) = f.color();
     else
-      color(pt) = blend(color(pt), f.color(), 0.9);
+      color(pt) = images::blend(color(pt), f.color(), 0.9);
 
     alpha(pt)++;
   }
@@ -95,6 +95,6 @@ chaos_game(const flame_function_set<Pixel> &funcs,
   return result;
 }
 
-} // namespace muspelheim
+} // namespace ifs
 
 #endif
