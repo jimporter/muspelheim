@@ -4,10 +4,33 @@
 
 #include <future>
 #include <iostream>
+#include <experimental/optional>
 
 #include <boost/gil/extension/io/png_dynamic_io.hpp>
 #include <boost/gil/typedefs.hpp>
 #include <boost/program_options.hpp>
+
+// Put this in the boost namespace so that ADL picks them up (via the
+// boost::any parameter).
+namespace boost {
+
+template<typename T>
+void validate(boost::any &v, const std::vector<std::string> &values,
+              std::experimental::optional<T>*, int) {
+  using namespace boost::program_options;
+  using optional_t = std::experimental::optional<T>;
+
+  if(v.empty())
+    v = optional_t();
+  auto *val = boost::any_cast<optional_t>(&v);
+  assert(val);
+
+  boost::any a;
+  validate(a, values, static_cast<T*>(nullptr), 0);
+  *val = boost::any_cast<T>(a);
+}
+
+} // namespace boost
 
 int main(int argc, const char *argv[]) {
   using namespace math;
@@ -21,14 +44,22 @@ int main(int argc, const char *argv[]) {
     { handkerchief, translate(0.75, -0.5)*rotate(M_PI), *colors++ },
     { linear, translate(-0.1, 0.1)*scale(0.3), *colors++ },
     { linear, translate(0.1, -0.1)*scale(0.35)*rotate(M_PI/2), *colors++ },
-    { spiral, translate(-0.5, 0.1)*scale(0.5), *colors++ },
-    { spiral, translate(0.5, -0.1)*scale(0.5), *colors++ },
-    { spiral, translate(-0.5, 0.1)*scale(0.5)*rotate(M_PI/2), *colors++ },
-    { spiral, translate(0.5, -0.1)*scale(0.5)*rotate(M_PI/2), *colors++ },
-    { spiral, translate(0.1, -0.5)*scale(0.5), *colors++ },
-    { spiral, translate(-0.1, 0.5)*scale(0.5), *colors++ },
-    { spiral, translate(0.1, -0.5)*scale(0.5)*rotate(M_PI/2), *colors++ },
-    { spiral, translate(-0.1, 0.5)*scale(0.5)*rotate(M_PI/2), *colors++ },
+    { spiral, translate(-0.5, 0.1)*scale(0.5), *colors++,
+      translate(0.1, 0.9) },
+    { spiral, translate(0.5, -0.1)*scale(0.5), *colors++,
+      translate(0.2, -0.8) },
+    { spiral, translate(-0.5, 0.1)*scale(0.5)*rotate(M_PI/2), *colors++,
+      translate(-0.3, -0.7) },
+    { spiral, translate(0.5, -0.1)*scale(0.5)*rotate(M_PI/2), *colors++,
+      translate(-0.4, 0.6) },
+    { spiral, translate(0.1, -0.5)*scale(0.5), *colors++,
+      translate(0.5, 0.5) },
+    { spiral, translate(-0.1, 0.5)*scale(0.5), *colors++,
+      translate(0.6, -0.4) },
+    { spiral, translate(0.1, -0.5)*scale(0.5)*rotate(M_PI/2), *colors++,
+      translate(-0.7, -0.3) },
+    { spiral, translate(-0.1, 0.5)*scale(0.5)*rotate(M_PI/2), *colors++,
+      translate(-0.8, 0.2) },
     { swirl, translate(-0.5, -0.5)*scale(-0.75), *colors++ },
   };
 
@@ -37,7 +68,7 @@ int main(int argc, const char *argv[]) {
   ptrdiff_t size = 666;
   size_t num_jobs = 1;
   double gamma = 1.0;
-  bool hdr = false;
+  std::experimental::optional<double> hdr;
 
   opts::options_description desc;
   desc.add_options()
@@ -46,7 +77,7 @@ int main(int argc, const char *argv[]) {
     ("size,s", opts::value(&size), "image size")
     ("jobs,j", opts::value(&num_jobs), "number of parallel jobs")
     ("gamma,g", opts::value(&gamma), "gamma adjustment")
-    ("hdr,H", opts::value(&hdr)->zero_tokens(), "enable HDR")
+    ("hdr,H", opts::value(&hdr)->implicit_value(1.0, "1.0"), "enable HDR")
   ;
 
   try {
@@ -83,7 +114,7 @@ int main(int argc, const char *argv[]) {
   if(hdr) {
     rgb8_image_t gray(size, size, rgb8(0), 0);
     images::render_monochrome(
-      view(gray), images::linear_alpha(combined), rgb8(255, 255, 255), gamma
+      view(gray), images::linear_alpha(combined), rgb8(255, 255, 255), *hdr
     );
     images::lighten(view(image), const_view(gray));
   }
