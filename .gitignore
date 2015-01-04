@@ -1,5 +1,4 @@
 *.o
 *.d
 config.mk
-muspelheim
 output.png

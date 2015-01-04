@@ -1,6 +1,6 @@
 #include "colors.hpp"
 #include "ifs.hpp"
-#include "variations.hpp"
+#include "muspelheim.hpp"
 
 #include <future>
 #include <iostream>
@@ -37,31 +37,6 @@ int main(int argc, const char *argv[]) {
   using namespace boost::gil;
   using rgb8 = rgb8_pixel_t;
   namespace opts = boost::program_options;
-
-  colors::color_theme_iterator colors({40, 140, 140}, 6);
-  ifs::iterated_function_system<rgb8> funcs = {
-    { handkerchief, translate(0.5, -0.75)*identity(), *colors++ },
-    { handkerchief, translate(0.75, -0.5)*rotate(M_PI), *colors++ },
-    { linear, translate(-0.1, 0.1)*scale(0.3), *colors++ },
-    { linear, translate(0.1, -0.1)*scale(0.35)*rotate(M_PI/2), *colors++ },
-    { spiral, translate(-0.5, 0.1)*scale(0.5), *colors++,
-      translate(0.1, 0.9) },
-    { spiral, translate(0.5, -0.1)*scale(0.5), *colors++,
-      translate(0.2, -0.8) },
-    { spiral, translate(-0.5, 0.1)*scale(0.5)*rotate(M_PI/2), *colors++,
-      translate(-0.3, -0.7) },
-    { spiral, translate(0.5, -0.1)*scale(0.5)*rotate(M_PI/2), *colors++,
-      translate(-0.4, 0.6) },
-    { spiral, translate(0.1, -0.5)*scale(0.5), *colors++,
-      translate(0.5, 0.5) },
-    { spiral, translate(-0.1, 0.5)*scale(0.5), *colors++,
-      translate(0.6, -0.4) },
-    { spiral, translate(0.1, -0.5)*scale(0.5)*rotate(M_PI/2), *colors++,
-      translate(-0.7, -0.3) },
-    { spiral, translate(-0.1, 0.5)*scale(0.5)*rotate(M_PI/2), *colors++,
-      translate(-0.8, 0.2) },
-    { swirl, translate(-0.5, -0.5)*scale(-0.75), *colors++ },
-  };
 
   bool show_help = false;
   size_t steps = 1000000;
@@ -100,7 +75,7 @@ int main(int argc, const char *argv[]) {
   for(size_t i = 0; i < num_jobs; i++) {
     jobs.push_back(std::async(
       std::launch::async, ifs::chaos_game<rgb8>,
-      funcs, point2<ptrdiff_t>{size, size}, steps
+      muspelheim::function_system, point2<ptrdiff_t>{size, size}, steps
     ));
   }
   std::vector<images::raw_image_data<rgb8>> data;

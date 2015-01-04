@@ -8,6 +8,7 @@ ifndef TMPDIR
 endif
 
 SOURCES := $(wildcard src/*.cpp)
+GALLERY := $(patsubst %.cpp,%,$(wildcard src/gallery/*.cpp))
 
 .PHONY: all
 all: muspelheim
@@ -15,6 +16,7 @@ all: muspelheim
 # Include all the existing dependency files for automatic #include dependency
 # handling.
 -include $(SOURCES:.cpp=.d)
+-include $(GALLERY:=.d)
 
 # Build .o files and the corresponding .d (dependency) files. For more info, see
 # <http://scottmcpeak.com/autodepend/autodepend.html>.
@@ -27,8 +29,8 @@ all: muspelheim
 	  sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
 	@rm -f $(TEMP)
 
-muspelheim: LDFLAGS += -lpng -lpthread -lboost_program_options
-muspelheim: $(SOURCES:.cpp=.o)
+$(GALLERY): LDFLAGS += -lpng -lpthread -lboost_program_options
+$(GALLERY): %: %.o $(SOURCES:.cpp=.o)
 	$(CXX) $(CXXFLAGS) $^ $(LDFLAGS) -o $@
 
 .PHONY: install
@@ -38,3 +40,8 @@ install: all
 .PHONY: clean
 clean:
 	rm -f muspelheim *.o *.d
+
+.PHONY: gitignore
+gitignore:
+	@echo $(GALLERY) | sed -e 's|src/gallery/||g' -e 's/ /\n/g' > \
+	  src/gallery/.gitignore
