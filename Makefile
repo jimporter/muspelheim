@@ -21,13 +21,9 @@ all: gallery
 # Build .o files and the corresponding .d (dependency) files. For more info, see
 # <http://scottmcpeak.com/autodepend/autodepend.html>.
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-	$(eval TEMP := $(shell mktemp $(TMPDIR)/muspelheim-XXXXXX))
-	@$(CXX) $(CXXFLAGS) -MM -Iinclude $< > $(TEMP)
-	@sed -e 's|.*:|$*.o:|' < $(TEMP) > $*.d
-	@sed -e 's/.*://' -e 's/\\$$//' < $(TEMP) | fmt -1 | \
+	$(CXX) $(CXXFLAGS) -Iinclude -MMD -MF $*.d -c $< -o $@
+	@sed -e 's/.*://' -e 's/\\$$//' < $*.d | fmt -1 | \
 	  sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
-	@rm -f $(TEMP)
 
 $(GALLERY): LDFLAGS += -lpng -lpthread -lboost_program_options
 $(GALLERY): %: %.o $(SOURCES:.cpp=.o)
