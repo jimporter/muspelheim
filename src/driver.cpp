@@ -47,19 +47,41 @@ int main(int argc, const char *argv[]) {
   size_t num_jobs = 1;
   double gamma = 1.0;
   std::optional<double> hdr;
+  std::string output_file = std::string(argv[0]) + ".png";
 
-  opts::options_description desc;
-  desc.add_options()
+  opts::options_description generic_opts("Generic options");
+  generic_opts.add_options()
     ("help,h", opts::value(&show_help)->zero_tokens(), "show help")
-    ("steps,n", opts::value(&steps), "number of iterations")
-    ("size,s", opts::value(&size), "image size")
-    ("jobs,j", opts::value(&num_jobs), "number of parallel jobs")
-    ("gamma,g", opts::value(&gamma), "gamma adjustment")
-    ("hdr,H", opts::value(&hdr)->implicit_value(1.0, "1.0"), "enable HDR")
   ;
 
+  opts::options_description compute_opts("Compute options");
+  compute_opts.add_options()
+    ("steps,n", opts::value(&steps)->value_name("N"), "number of iterations")
+    ("size,s", opts::value(&size)->value_name("SIZE"), "image size")
+    ("jobs,j", opts::value(&num_jobs)->value_name("JOBS"),
+     "number of parallel jobs")
+  ;
+
+  opts::options_description image_opts("Image options");
+  image_opts.add_options()
+    ("gamma,g", opts::value(&gamma)->value_name("GAMMA"), "gamma adjustment")
+    ("hdr,H", opts::value(&hdr)->implicit_value(1.0, "1.0")->value_name("HDR"),
+     "enable HDR")
+  ;
+
+  opts::options_description hidden_opts("Hidden options");
+  hidden_opts.add_options()
+    ("output-file", opts::value(&output_file), "output file")
+  ;
+  opts::positional_options_description pos;
+  pos.add("output-file", 1);
+
   try {
-    auto parsed = opts::command_line_parser(argc, argv).options(desc).run();
+    opts::options_description all_opts;
+    all_opts.add(generic_opts).add(compute_opts).add(image_opts)
+      .add(hidden_opts);
+    auto parsed = opts::command_line_parser(argc, argv)
+      .options(all_opts).positional(pos).run();
 
     opts::variables_map vm;
     opts::store(parsed, vm);
@@ -70,7 +92,9 @@ int main(int argc, const char *argv[]) {
   }
 
   if(show_help) {
-    std::cout << desc << std::endl;
+    opts::options_description displayed;
+    displayed.add(generic_opts).add(compute_opts).add(image_opts);
+    std::cout << displayed << std::endl;
     return 0;
   }
 
@@ -97,7 +121,7 @@ int main(int argc, const char *argv[]) {
     images::lighten(view(image), const_view(gray));
   }
 
-  png_write_view("output.png", const_view(image));
+  png_write_view(output_file, const_view(image));
 
   return 0;
 }

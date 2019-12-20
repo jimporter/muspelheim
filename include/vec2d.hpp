@@ -119,7 +119,7 @@ struct affine_transform {
     return {
       x.a*y.a + x.b*y.d, x.a*y.b + x.b*y.e, x.a*y.c + x.b*y.f + x.c,
         x.d*y.a + x.e*y.d, x.d*y.b + x.e*y.e, x.d*y.c + x.e*y.f + x.f
-        };
+    };
   }
 
   affine_transform & operator *=(const affine_transform &rhs) {

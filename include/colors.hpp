@@ -46,7 +46,7 @@ private:
     evaluate();
   }
 
-  bool equal(const color_theme_iterator &other) const {
+  bool equal(const color_theme_iterator &) const {
     return false; // TODO
   }
 

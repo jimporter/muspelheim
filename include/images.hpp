@@ -119,9 +119,6 @@ template<typename View, typename ColorPixel>
 void render_monochrome(View &dst, const cooked_image_data<ColorPixel> &src,
                        const ColorPixel &color, double gamma = 1.0) {
   using namespace boost::gil;
-  using dst_pixel = typename View::value_type;
-  using channel_t = typename channel_type<dst_pixel>::type;
-
   auto alpha = const_view(src.alpha);
 
   double inv_gamma = 1/gamma;
