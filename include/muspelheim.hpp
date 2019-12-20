@@ -9,10 +9,10 @@
 
 namespace muspelheim {
 
-using rgb8 = boost::gil::rgb8_pixel_t;
-using flame_function_system = ifs::iterated_function_system<rgb8>;
+  using rgb8 = boost::gil::rgb8_pixel_t;
+  using flame_function_system = ifs::iterated_function_system<rgb8>;
 
-extern flame_function_system function_system;
+  extern flame_function_system function_system;
 
 } // namespace muspelheim
 
