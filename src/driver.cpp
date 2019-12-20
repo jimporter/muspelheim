@@ -4,7 +4,10 @@
 
 #include <future>
 #include <iostream>
-#include <experimental/optional>
+#include <optional>
+
+#define png_infopp_NULL (png_infopp)NULL
+#define int_p_NULL (int*)NULL
 
 #include <boost/gil/extension/io/png_dynamic_io.hpp>
 #include <boost/gil/typedefs.hpp>
@@ -16,9 +19,9 @@ namespace boost {
 
 template<typename T>
 void validate(boost::any &v, const std::vector<std::string> &values,
-              std::experimental::optional<T>*, int) {
+              std::optional<T>*, int) {
   using namespace boost::program_options;
-  using optional_t = std::experimental::optional<T>;
+  using optional_t = std::optional<T>;
 
   if(v.empty())
     v = optional_t();
@@ -43,7 +46,7 @@ int main(int argc, const char *argv[]) {
   ptrdiff_t size = 666;
   size_t num_jobs = 1;
   double gamma = 1.0;
-  std::experimental::optional<double> hdr;
+  std::optional<double> hdr;
 
   opts::options_description desc;
   desc.add_options()

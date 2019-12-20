@@ -1,4 +1,4 @@
-#include "../muspelheim.hpp"
+#include <muspelheim.hpp>
 
 using namespace math;
 using namespace muspelheim;

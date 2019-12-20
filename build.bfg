@@ -1,0 +1,31 @@
+# -*- python -*-
+
+bfg9000_required_version('>=0.5.0')
+project('muspelheim', version='0.1-dev', intermediate_dirs=False)
+
+global_options([opts.std('c++17')], lang='c++')
+
+packages = [
+    package('png'),
+    boost_package('program_options', version='>=1.55'),
+]
+if env.target_platform.family == 'posix':
+    packages.append(package('pthread'))
+
+includes = header_directory('include', include='*.hpp')
+libmuspelheim = static_library(
+    'muspelheim',
+    find_files('src', '*.cpp', extra='*.hpp', flat=True),
+    includes=includes,
+    packages=packages,
+)
+
+for src in find_files('gallery', '*.cpp'):
+    executable(
+        src.path.stripext().suffix,
+        files=src,
+        includes=includes,
+        libs=libmuspelheim,
+    )
+
+extra_dist(files=['README.md', 'LICENSE'])
