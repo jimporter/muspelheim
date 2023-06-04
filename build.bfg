@@ -1,6 +1,6 @@
-# -*- python -*-
+# -*- mode: python; mode: bfg9000 -*-
 
-bfg9000_required_version('>=0.5.0')
+bfg9000_required_version('>=0.7.0')
 project('muspelheim', version='0.1-dev', intermediate_dirs=False)
 
 global_options([opts.std('c++17')], lang='c++')
